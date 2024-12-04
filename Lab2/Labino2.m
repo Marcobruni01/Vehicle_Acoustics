@@ -6,8 +6,8 @@ close all
 %legge e importa i dati sperimentali per ogni microfono 
 %per far funzionare il codice dovete inserire il percoso delle tabelle nel vostro pc
 
-mic1 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic1_94dB_1kHz.txt');
-mic2 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic2_94dB_1kHz.txt');
+mic1 = readtable('Dati per studenti/Cal_Mic1_94dB_1kHz.txt');
+mic2 = readtable('Dati per studenti/Cal_Mic2_94dB_1kHz.txt');
 mic3 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic3_94dB_1kHz.txt');
 mic4 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic4_94dB_1kHz.txt');
 manichinoL = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_MicML_945dB_1kHz.txt');
