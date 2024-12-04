@@ -44,9 +44,9 @@ K(5:6) = V_rms(5:6)/Prms_manichino;
 
 %%
 
-empty = readtable('Dati per studenti/Test_Imp_EmptyCabin.txt');
-full = readtable('Dati per studenti/Test_Imp_Cabin&passengers.txt');
-ramp = readtable('Dati per studenti/Test_Ramp.txt');
+empty = readtable('students_data/Test_Imp_EmptyCabin.txt');
+full = readtable('students_data/Test_Imp_Cabin&passengers.txt');
+ramp = readtable('students_data/Test_Ramp.txt');
 
 %%
 
@@ -106,7 +106,7 @@ cutoff_freq = 10; % Frequenza di taglio in Hz
 
 % Filtra i segnali
 Hamm = filtfilt(b, a, Hamm); % Segnale del martello filtrato
-Mic1 = filtfilt(b, a, Mic1); % Microfono 1 filtrato
+Mic1 = filtfilt(b, a, mic(1,:)); % Microfono 1 filtrato
 
 % Verifica dei segnali filtrati (opzionale)
 figure;
@@ -115,5 +115,5 @@ plot(Hamm); hold on; title('Hammer Original Signal');
 legend('Original');
 
 subplot(2,1,2);
-plot(Mic1); hold on;  title('Mic1 Signal Filtered');
+plot(mic(i,:)); hold on;  title('Mic1 Signal Filtered');
 legend('Filtered');
