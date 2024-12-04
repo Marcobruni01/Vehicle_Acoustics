@@ -6,12 +6,12 @@ close all
 %legge e importa i dati sperimentali per ogni microfono 
 %per far funzionare il codice dovete inserire il percoso delle tabelle nel vostro pc
 
-mic1 = readtable('Dati per studenti/Cal_Mic1_94dB_1kHz.txt');
-mic2 = readtable('Dati per studenti/Cal_Mic2_94dB_1kHz.txt');
-mic3 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic3_94dB_1kHz.txt');
-mic4 = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_Mic4_94dB_1kHz.txt');
-manichinoL = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_MicML_945dB_1kHz.txt');
-manichinoR = readtable('/Users/marco/Documents/POLIMI/Veichle Acoustics/Lab2/Dati per studenti/Cal_MicMR_945dB_1kHz.txt');
+mic1 = readtable('students_data/Cal_Mic1_94dB_1kHz.txt');
+mic2 = readtable('students_data/Cal_Mic2_94dB_1kHz.txt');
+mic3 = readtable('students_data/Cal_Mic3_94dB_1kHz.txt');
+mic4 = readtable('students_data/Cal_Mic4_94dB_1kHz.txt');
+manichinoL = readtable('students_data/Cal_MicML_945dB_1kHz.txt');
+manichinoR = readtable('students_data/Cal_MicMR_945dB_1kHz.txt');
 
 %calibrazione
 %variabili
@@ -50,7 +50,50 @@ ramp = readtable('Dati per studenti/Test_Ramp.txt');
 
 %%
 
+mic(1,:) = empty.Var1;
+mic(2,:) = empty.Var2;
+mic(3,:) = empty.Var5;
+mic(4,:) = empty.Var6;
+mic(5,:) = empty.Var3;
+mic(6,:) = empty.Var4;
 
+Acc(1,:) = empty.Var7;   % Accelerometro 1 (Colonna 7)
+Acc(2,:) = empty.Var8;   % Accelerometro 2 (Colonna 8)
+Acc(3,:) = empty.Var9;   % Accelerometro 3 (Colonna 9)
+Acc(4,:) = empty.Var10;  % Accelerometro 4 (Colonna 10)
+Acc(5,:) = empty.Var11;  % Accelerometro 5 (Colonna 11)
+Acc(6,:) = empty.Var12;  % Accelerometro 6 (Colonna 12)
+
+% Vibrometro (Laser)
+vib = empty.Var14; % Vibrometro (Colonna 14)
+
+% Segnale del martello (Hamm)
+Hamm = empty.Var15;  % Segnale del martello (Colonna 15)
+
+%%
+
+figure 
+for i = 1:4 
+    hold on 
+    plot(mic(i,:));
+end
+
+figure
+for i = 5:6
+    hold on 
+    plot(mic(i,:));
+end
+
+figure
+for i = 1:6
+    hold on 
+    plot(Acc(i,:));
+end
+
+figure 
+plot(Hamm);
+
+   
 %%
 
 % Parametri del filtro PASSA-ALTO
