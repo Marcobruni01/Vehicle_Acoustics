@@ -6,12 +6,12 @@ close all
 %legge e importa i dati sperimentali per ogni microfono 
 %per far funzionare il codice dovete inserire il percoso delle tabelle nel vostro pc
 
-mic1 = readtable('students_data/Cal_Mic1_94dB_1kHz.txt');
-mic2 = readtable('students_data/Cal_Mic2_94dB_1kHz.txt');
-mic3 = readtable('students_data/Cal_Mic3_94dB_1kHz.txt');
-mic4 = readtable('students_data/Cal_Mic4_94dB_1kHz.txt');
-manichinoL = readtable('students_data/Cal_MicML_945dB_1kHz.txt');
-manichinoR = readtable('students_data/Cal_MicMR_945dB_1kHz.txt');
+mic1 = readtable('students_data/SBN/Cal_Mic1_94dB_1kHz.txt');
+mic2 = readtable('students_data/SBN/Cal_Mic2_94dB_1kHz.txt');
+mic3 = readtable('students_data/SBN/Cal_Mic3_94dB_1kHz.txt');
+mic4 = readtable('students_data/SBN/Cal_Mic4_94dB_1kHz.txt');
+manichinoL = readtable('students_data/SBN/Cal_MicML_945dB_1kHz.txt');
+manichinoR = readtable('students_data/SBN/Cal_MicMR_945dB_1kHz.txt');
 
 %calibrazione
 %variabili
