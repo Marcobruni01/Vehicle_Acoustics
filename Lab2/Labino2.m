@@ -53,7 +53,6 @@ K(5:6) = V_rms(5:6)/Prms(2);
 
 empty = readtable('students_data/SBN/Test_Imp_EmptyCabin.txt');
 full = readtable('students_data/SBN/Test_Imp_Cabin&passengers.txt');
-ramp = readtable('students_data/SBN/Test_Ramp.txt');
 
 %%
 
@@ -101,6 +100,8 @@ vib_full = full.Var14.'; % Vibrometro (Colonna 14)
 
 % Segnale del martello (Hamm)
 hamm_full = full.Var15.';  % Segnale del martello (Colonna 15)
+
+clear empty full
 
 %%
 t_axis = (0:1:length(hamm)-1)./fs;
@@ -245,15 +246,17 @@ acc_TFs_full_2 = acc_FTs_full./hamm_FTs_full;
 vib_TFs_full_2 = vib_FTs_full./hamm_FTs_full; 
 
 %% compute the coherence
-
+mic_coherence = zeros(512,13,4,6);
+acc_coherence = zeros(512,13,4,6);
 for i = 1:height(winds)
+    %vib_coherence(:,:,i) = mscohere(squeeze(permute(vib_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_2, [3 1 2])));
     vib_coherence(:,:,i) = mscohere(squeeze(permute(vib_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_2, [3 1 2])));
-    mic_coherence(:,:,i) = mscohere(squeeze(permute(mic_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_2, [3 2 1])));
-    acc_coherence(:,:,i) = mscohere(squeeze(permute(acc_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_2, [3 2 1])));
+    mic_coherence(:,:,i,:) = reshape(mscohere(squeeze(permute(mic_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_2, [3 2 1]))),512,13,1,6);
+    acc_coherence(:,:,i,:) = reshape(mscohere(squeeze(permute(acc_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_2, [3 2 1]))),512,13,1,6);
 
-    vib_coherence_full(:,:,i) = mscohere(squeeze(permute(vib_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_full_2, [3 1 2])));
-    mic_coherence_full(:,:,i) = mscohere(squeeze(permute(mic_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_full_2, [3 2 1])));
-    acc_coherence_full(:,:,i) = mscohere(squeeze(permute(acc_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_full_2, [3 2 1])));    
+    %vib_coherence_full(:,:,i) = mscohere(squeeze(permute(vib_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_full_2, [3 1 2])));
+    %mic_coherence_full(:,:,i) = mscohere(squeeze(permute(mic_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_full_2, [3 2 1])));
+    %acc_coherence_full(:,:,i) = mscohere(squeeze(permute(acc_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_full_2, [3 2 1])));    
 end
 
 %%
@@ -322,4 +325,38 @@ if plot_avg
     plot(f_axis, db(abs(squeeze(avg_vib_TFs(:,:)))))
     xlim([0 1500])
     legend(windnames)
+end
+
+%%
+
+ramp = readtable('students_data/SBN/Test_Ramp.txt');
+
+mic_ramp(1,:) = ramp.Var1;
+mic_ramp(2,:) = ramp.Var2;
+mic_ramp(3,:) = ramp.Var5;
+mic_ramp(4,:) = ramp.Var6;
+mic_ramp(5,:) = ramp.Var3;
+mic_ramp(6,:) = ramp.Var4;
+
+acc_ramp(1,:) = ramp.Var7;   % Accelerometro 1 (Colonna 7)
+acc_ramp(2,:) = ramp.Var8;   % Accelerometro 2 (Colonna 8)
+acc_ramp(3,:) = ramp.Var9;   % Accelerometro 3 (Colonna 9)
+acc_ramp(4,:) = ramp.Var10;  % Accelerometro 4 (Colonna 10)
+acc_ramp(5,:) = ramp.Var11;  % Accelerometro 5 (Colonna 11)
+acc_ramp(6,:) = ramp.Var12;  % Accelerometro 6 (Colonna 12)
+
+clear ramp
+
+figure
+sgtitle("Accelerometers")
+for i = 1:height(acc_ramp)
+    subplot(3,2,i)
+    spectrogram(acc_ramp(i,:), 'yaxis');
+end
+
+figure
+sgtitle("Mics")
+for i = 1:height(acc_ramp)
+    subplot(3,2,i)
+    spectrogram(mic_ramp(i,:), 'yaxis');
 end

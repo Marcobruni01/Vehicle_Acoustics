@@ -1,6 +1,4 @@
-function [TFs,f_axis] = calculateInpulseTFs(hammer,microphones,windows, hop, Fs)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+function [TFs,f_axis] = calculateInpulseTFs(hammer,microphones,windows, hop, Fs)s
 
     [~,idx] = findpeaks(hammer, 'MinPeakHeight', 0.02);
     TFs = zeros(height(microphones),length(idx),height(windows),length(windows)/2+1);
