@@ -76,19 +76,9 @@ for i = 1:height(test_TFs)
     figure
     sgtitle("Transfer Functions for Test " + i)
     for j = 1:width(test_TFs)
-        if(mod(j,2) == 0)
-            amp_idx = 2*(j-2) + 2;
-            ph_idx = 2*(j-2) + 4;
-        else
-            amp_idx = 2*(j-1) + 1;
-            ph_idx = 2*(j-1) + 3;
-        end
-        subplot(6,2,amp_idx)
+        subplot(3,2,j)
+        title
         plot(f_axis,db(abs(squeeze(test_TFs(i,j,:)))))
-        title("TF for microphone " + j)
-        xlim([0 5000])
-        subplot(6,2,ph_idx)
-        plot(f_axis,angle(squeeze(test_TFs(i,j,:))))
         xlim([0 5000])
     end
 end

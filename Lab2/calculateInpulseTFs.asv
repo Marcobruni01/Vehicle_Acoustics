@@ -1,6 +1,7 @@
 function [TFs,f_axis] = calculateInpulseTFs(hammer,microphones,windows, hop, Fs)
 
     [~,idx] = findpeaks(hammer, 'MinPeakHeight', 0.02);
+    idx
     TFs = zeros(height(microphones),length(idx),height(windows),length(windows)/2+1);
     for j = 1:length(idx)
         if j == length(idx)
