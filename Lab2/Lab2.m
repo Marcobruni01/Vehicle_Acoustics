@@ -9,7 +9,7 @@ plot_TF = true;
 plot_TF2 = true;
 plot_avg = true;
 
-%%
+%% SBN
 
 %legge e importa i dati sperimentali per ogni microfono 
 %per far funzionare il codice dovete inserire il percoso delle tabelle nel vostro pc
@@ -110,25 +110,51 @@ t_axis = (0:1:length(hamm)-1)./fs;
 t_axis_full = (0:1:length(hamm_full)-1)./fs;
 
 if plot_og
-    figure 
+    figure
+    sgtitle("Empty Cabin")
     subplot(5,1,1)
     plot(t_axis, mic(1:4,:));
     title("Microphone signals")
     
     subplot(5,1,2)
     plot(t_axis, mic(5:6,:));
+    title("Torso + Head signals")
     
     subplot(5,1,3)
-    title("Accelerometer signals")
     plot(t_axis, acc);
+    title("Accelerometer signals")
     
     subplot(5,1,4)
-    title("Vibrometer signals")
     plot(t_axis, vib);
+    title("Vibrometer signals")
     
     subplot(5,1,5)
-    title("Impact hammer input")
     plot(t_axis, hamm);
+    title("Impact hammer input")
+    
+    % full cabin
+
+    figure
+    sgtitle("Empty Cabin")
+    subplot(5,1,1)
+    plot(t_axis, mic_full(1:4,:));
+    title("Microphone signals")
+    
+    subplot(5,1,2)
+    plot(t_axis, mic_full(5:6,:));
+    title("Torso + Head signals")
+    
+    subplot(5,1,3)
+    plot(t_axis, acc_full);
+    title("Accelerometer signals")
+    
+    subplot(5,1,4)
+    plot(t_axis, vib_full);
+    title("Vibrometer signals")
+    
+    subplot(5,1,5)
+    plot(t_axis, hamm_full);
+    title("Impact hammer input")
 end
    
 %%
@@ -172,7 +198,7 @@ if plot_filtered
     title('Microphone Filtered Signals');
     subplot(5,1,3);
     plot(t_axis, filtered_mic(5:6,:));
-    title('Head+Torso Signals');
+    title('Head+Torso Filtered Signals');
     subplot(5,1,4);
     plot(t_axis, filtered_acc);
     title('Accelerometer Filtered Signals');
@@ -272,7 +298,6 @@ vib_TFs_full_2 = vib_TFs_full_2./max(abs(vib_TFs_full_2),[],3);
 
 %% compute the coherence
 for i = 1:height(winds)
-    %vib_coherence(:,:,i) = mscohere(squeeze(permute(vib_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_2, [3 1 2])));
     vib_coherence(:,:,i) = reshape(mscohere(squeeze(permute(vib_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_2, [3 1 2]))),512,13,1);
     mic_coherence(:,:,i,:) = reshape(mscohere(squeeze(permute(mic_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_2, [3 2 1]))),512,13,1,6);
     acc_coherence(:,:,i,:) = reshape(mscohere(squeeze(permute(acc_TFs(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_2, [3 2 1]))),512,13,1,6);
@@ -280,7 +305,6 @@ for i = 1:height(winds)
     vib_coherence_full(:,:,i) = reshape(mscohere(squeeze(permute(vib_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(vib_TFs_full_2, [3 1 2]))),512,14,1);
     mic_coherence_full(:,:,i,:) = reshape(mscohere(squeeze(permute(mic_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(mic_TFs_full_2, [3 2 1]))),512,14,1,6);
     acc_coherence_full(:,:,i,:) = reshape(mscohere(squeeze(permute(acc_TFs_full(:,:,i,:), [4 2 3 1])), squeeze(permute(acc_TFs_full_2, [3 2 1]))),512,14,1,6);
-
 end
 
 %%
@@ -308,7 +332,7 @@ if plot_TF
     sgtitle("Coherence of the 2 transfer functions for microphones (empty cabin)")
     for j = 1:height(mic_TFs)
         subplot(3,2,j);
-        plot(f_axis(1:512), abs(squeeze(mic_coherence(:,8,:,j))))
+        plot(f_axis(1:4:end), abs(squeeze(mic_coherence(:,8,:,j))))
         xlim([0 500])
         title("Microphone: " + j)
     end
@@ -335,7 +359,7 @@ if plot_TF
     sgtitle("Coherence of the 2 transfer functions for accelerometers (empty cabin)")
     for j = 1:height(mic_TFs)
         subplot(3,2,j);
-        plot(f_axis(1:512), abs(squeeze(acc_coherence(:,8,:,j))))
+        plot(f_axis(1:4:end), abs(squeeze(acc_coherence(:,8,:,j))))
         xlim([0 500])
         title("Accelerometer: " + j)
     end
@@ -358,7 +382,7 @@ if plot_TF
 
     figure
     sgtitle("Coherence of the 2 transfer functions for vibrometer (empty cabin)")
-    plot(f_axis(1:512), abs(squeeze(vib_coherence(:,8,:))))
+    plot(f_axis(1:4:end), abs(squeeze(vib_coherence(:,8,:))))
     xlim([0 500])
 
     % full cabin
@@ -642,3 +666,172 @@ for i = 1:height(acc_ramp)
     xlim([7 20])
     colorbar;
 end
+
+%% ABN
+
+test1 = readtable('students_data/ABN/Test1.txt');
+test2 = readtable('students_data/ABN/Test2.txt');
+test3 = readtable('students_data/ABN/Test3.txt');
+test4 = readtable('students_data/ABN/Test4.txt');
+
+test1_mics(1,:) = test1.Var1;
+test1_mics(2,:) = test1.Var2;
+test1_mics(3,:) = test1.Var5;
+test1_mics(4,:) = test1.Var6;
+test1_mics(5,:) = test1.Var3;
+test1_mics(6,:) = test1.Var4;
+
+test2_mics(1,:) = test2.Var1;
+test2_mics(2,:) = test2.Var2;
+test2_mics(3,:) = test2.Var5;
+test2_mics(4,:) = test2.Var6;
+test2_mics(5,:) = test2.Var3;
+test2_mics(6,:) = test2.Var4;
+
+test3_mics(1,:) = test3.Var1;
+test3_mics(2,:) = test3.Var2;
+test3_mics(3,:) = test3.Var5;
+test3_mics(4,:) = test3.Var6;
+test3_mics(5,:) = test3.Var3;
+test3_mics(6,:) = test3.Var4;
+
+test4_mics(1,:) = test4.Var1;
+test4_mics(2,:) = test4.Var2;
+test4_mics(3,:) = test4.Var5;
+test4_mics(4,:) = test4.Var6;
+test4_mics(5,:) = test4.Var3;
+test4_mics(6,:) = test4.Var4;
+
+Qsource(1,:) = test1.Var13;
+Qsource(2,:) = test2.Var13;
+Qsource(3,:) = test3.Var13;
+Qsource(4,:) = test4.Var13;
+
+clear test1 test2 test3 test4
+
+[b, a] = butter(order, cutoff_freq / (fs / 2), 'high');
+
+[test1_FTs, f_axis] = ffg(filtfilt(b,a,test1_mics.'), sz, 1/fs);
+[test2_FTs, ~] = ffg(filtfilt(b,a,test2_mics.'), sz, 1/fs);
+[test3_FTs, ~] = ffg(filtfilt(b,a,test3_mics.'), sz, 1/fs);
+[test4_FTs, ~] = ffg(filtfilt(b,a,test4_mics.'), sz, 1/fs);
+[Q_FTs, ~] = ffg(filtfilt(b,a,Qsource.'), sz, 1/fs);
+
+test_FTs(1,:,:) = (test1_FTs./max(test1_FTs,[],1)).';
+test_FTs(2,:,:) = (test2_FTs./max(test2_FTs,[],1)).';
+test_FTs(3,:,:) = (test3_FTs./max(test3_FTs,[],1)).';
+test_FTs(4,:,:) = (test4_FTs./max(test4_FTs,[],1)).';
+
+clear test1_FTs test2_FTs test3_FTs test4_FTs
+
+Q_FTs = (Q_FTs./max(Q_FTs,[],1)).';
+
+test_TFs = zeros(size(test_FTs));
+
+for i = 1:height(test_FTs)
+    test_TFs(i,:,:) = squeeze(test_FTs(i,:,:))./Q_FTs(i,:);
+    test_TFs(i,:,:) = test_TFs(i,:,:)./max(test_TFs(i,:,:),[],3);
+end
+
+%%
+for i = 1:size(test_TFs,1)
+    for j = 1:size(test_TFs,2)
+        coherence(i,j,:) = mscohere(squeeze(test_FTs(i,j,:)),Q_FTs(i,:));
+    end
+end
+
+%%
+
+for i = 1:height(test_TFs)
+    figure
+    sgtitle("Transfer Functions for Test " + i)
+    for j = 1:width(test_TFs)
+        if(mod(j,2) == 0)
+            amp_idx = 2*(j-2) + 2;
+            ph_idx = 2*(j-2) + 4;
+        else
+            amp_idx = 2*(j-1) + 1;
+            ph_idx = 2*(j-1) + 3;
+        end
+        subplot(6,2,amp_idx)
+        plot(f_axis,db(abs(squeeze(test_TFs(i,j,:)))))
+        title("TF for microphone " + j)
+        xlim([0 5000])
+
+        subplot(6,2,ph_idx)
+        plot(f_axis,angle(squeeze(test_TFs(i,j,:))))
+        xlim([0 5000])
+    end
+
+    figure
+    sgtitle("Coherence with Qsource for Test " + i)
+    for j = 1:width(test_TFs)
+        subplot(3,2,j)
+        plot(f_axis(1:4:end),squeeze(coherence(i,j,:)))
+        title("coherence for microphone " + j)
+        xlim([0 5000])
+
+    end
+end
+
+%%
+f_min = f_axis(2);
+f_max = f_axis(end);
+
+k = 0;
+f_center = [];
+while true
+    f_current = f_min * (2^(k/3)); % Calculate center frequency for band index k
+    if f_current > f_max
+        break; % Stop if the current center frequency exceeds the maximum frequency
+    end
+    f_center = [f_center, f_current]; % Append the center frequency to the list
+    k = k + 1; % Increment band index
+end
+
+third = zeros([size(test_TFs,[1 2]),length(f_center)]);
+
+for i = 1:length(f_center)
+    % Compute lower and upper band edges
+    f_lower = f_center(i) / (2^(1/6));
+    f_upper = f_center(i) * (2^(1/6));
+    
+    % Find indices of frequencies within the current band
+    idx = (f_axis >= f_lower) & (f_axis <= f_upper);
+    
+    % Calculate the average energy (or magnitude) in the current band
+    if any(idx) % Ensure there are data points in this bands
+        app = test_TFs(:,:,idx);
+        third(:,:,i) = sqrt(mean(app.^2,3));
+    else
+    third(:,:,i) = zeros([size(test_TFs,[1 2]),1]);
+    end
+end
+
+%%
+
+figure;
+bar(1:length(f_center),abs([squeeze(third(3,1,:)) squeeze(third(3,5,:)) squeeze(third(3,6,:))]));
+xlabel('Frequency (Hz)');
+ylabel('Band Magnitude (dB)');
+title('One-Third Octave Band Analysis');
+grid on;
+xticks(1:length(f_center)); % Set x-ticks at integer indices
+xticklabels(arrayfun(@(x) sprintf('%.1f Hz', x), f_center, 'UniformOutput', false));
+xlim([5.5, 33.5]);
+xtickangle(45);
+legend("Microphone 1", "Head and Torso Left", "Head and Tprsp Right")
+
+%%
+
+figure;
+bar(1:length(f_center),abs([squeeze(third(3,1,:)) squeeze(third(4,1,:))]));
+xlabel('Frequency (Hz)');
+ylabel('Band Magnitude (dB)');
+title('One-Third Octave Band Analysis');
+grid on;
+xticks(1:length(f_center)); % Set x-ticks at integer indices
+xticklabels(arrayfun(@(x) sprintf('%.1f Hz', x), f_center, 'UniformOutput', false));
+xlim([5.5, 33.5]);
+xtickangle(45);
+legend("Test 3", "Test 4")
