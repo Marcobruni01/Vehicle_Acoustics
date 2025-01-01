@@ -137,23 +137,23 @@ if plot_og
     figure
     sgtitle("Empty Cabin")
     subplot(5,1,1)
-    plot(t_axis, mic_full(1:4,:));
+    plot(t_axis_full, mic_full(1:4,:));
     title("Microphone signals")
     
     subplot(5,1,2)
-    plot(t_axis, mic_full(5:6,:));
+    plot(t_axis_full, mic_full(5:6,:));
     title("Torso + Head signals")
     
     subplot(5,1,3)
-    plot(t_axis, acc_full);
+    plot(t_axis_full, acc_full);
     title("Accelerometer signals")
     
     subplot(5,1,4)
-    plot(t_axis, vib_full);
+    plot(t_axis_full, vib_full);
     title("Vibrometer signals")
     
     subplot(5,1,5)
-    plot(t_axis, hamm_full);
+    plot(t_axis_full, hamm_full);
     title("Impact hammer input")
 end
    
