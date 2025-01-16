@@ -1,21 +1,19 @@
 clc 
 clear 
 close all
-%%
+%% ABN
 ext_base = "students_data/exterior_noise";
-int_base = "students_data/interior_noise";
 ped_d = 65.5; %[m] distance between the 2 pedals
 Fs = 16384;
 train_len = 174;
 T_spl = 0.125;
 num_samps = ceil(Fs*T_spl);
-
-extdirs = strsplit(convertCharsToStrings(ls(ext_base)));
-extdirs(end) = [];
-
 p0 = 1;
 
 %%
+
+extdirs = strsplit(convertCharsToStrings(ls(ext_base)));
+extdirs(end) = [];
 
 for i = 1:length(extdirs)
     str_app = ext_base + "/" + extdirs(i);
@@ -57,7 +55,7 @@ for i = 1:length(extdirs)
      end
 end
 
-clear var idx val t1_idx t2_idx i j k
+clear var idx val t1_idx t2_idx i j k weight_filt
 
 %%
 
@@ -116,10 +114,10 @@ for i = 1:4
     grid on
     for j = 1:height(Mic_ext)
         scatter(Mic_ext(j,i).avg_vel(1), Mic_ext(j,i).TEL)
-
     end
 end
 
+clear i j
 %%
 [Spec_near, f_near, t_near] = spectrogram(Mic_ext(1,1).data, 512,256,8192,Fs);
 [Spec_far, f_far, t_far] = spectrogram(Mic_ext(1,3).data, 512,256,8192,Fs);
@@ -134,9 +132,8 @@ xlabel('Time (s)');
 ylabel('Frequency (Hz)');
 title("Microphone near");
 set(gca, 'YDir', 'normal');
-%ylim([7 14])
 colorbar;
-sgtitle("Spectrogram comparison")
+
 subplot(1,2,2)
 imagesc(f_far, t_far, db(abs(Spec_far).')); % Time and frequency axes
 axis xy
@@ -144,5 +141,109 @@ xlabel('Time (s)');
 ylabel('Frequency (Hz)');
 title("Microphone far");
 set(gca, 'YDir', 'normal');
-%ylim([8 13])
 colorbar;
+
+clear Spec_far Spec_near f_far f_near t_far t_near
+%% SBN
+
+clear all
+
+int_base = "students_data/interior_noise";
+Fs = 25600;
+
+stops = ["Chivssso", "Santhia'", " Vercelli", "Novara", "Magenta", "Rho", "Milano"];
+
+tests = strsplit(convertCharsToStrings(ls(int_base)));
+tests(end) = [];
+
+win_len = 20;
+win_len_samps = Fs*win_len;
+% Test = readtable(int_base + "/" + tests(2));
+for i = 1:length(tests)
+    test_data(i).data = table2array(readtable(int_base + "/" + tests(i)));
+    weight_filt = weightingFilter('A-weighting', 'SampleRate', Fs);
+    test_data(i).data = weight_filt(test_data(i).data);
+    for j = 1:ceil(length(test_data(i).data)/win_len_samps)
+        if(j == ceil(length(test_data(i).data)/win_len_samps))
+           cut = j*win_len_samps - length(test_data(i).data);
+        else
+           cut = 0;
+        end
+        test_data(i).SPL(j) = (sum(test_data(i).data((j-1)*win_len_samps + 1:(j*win_len_samps - cut)).^2)./win_len_samps).^(1/2);
+        
+        % [fft, f_axis] = ffg(test_data(i).data,4096,1/12500);
+        [fft_var, f_axis] = ffg(test_data(i).data((j-1)*win_len_samps + 1:(j*win_len_samps - cut)),4096,1/12500);
+        f_min = f_axis(2);
+        f_max = f_axis(end);
+        k = 0;
+        f_center = [];
+        while true
+            f_current = f_min * (2^(k/3)); % Calculate center frequency for band index k
+            if f_current > f_max
+                break; % Stop if the current center frequency exceeds the maximum frequency
+            end
+            f_center = [f_center, f_current]; % Append the center frequency to the list
+            k = k + 1; % Increment band index
+        end
+        
+        test_data(i).third_oct(j,:) = zeros(size(f_center));
+        test_data(i).bands(j,:) = f_center;
+        
+        for k = 1:length(f_center)
+            % Compute lower and upper band edges
+            f_lower = f_center(k) / (2^(1/6));
+            f_upper = f_center(k) * (2^(1/6));
+            
+            % Find indices of frequencies within the current band
+            idx = (f_axis >= f_lower) & (f_axis <= f_upper);
+            
+            % Calculate the average energy (or magnitude) in the current band
+            if any(idx) % Ensure there are data points in this bands
+                test_data(i).third_oct(j,k) = sqrt(mean(fft_var(idx).^2));
+            else
+                test_data(i).third_oct(j,k) = 0;
+            end
+        end
+        test_data(i).third_max = max(test_data(i).third_oct);
+        test_data(i).third_min = min(test_data(i).third_oct);
+        test_data(i).third_avg = sum(test_data(1).third_oct)/width(test_data(1).third_oct);
+        test_data(i).third_rms = (sum(test_data(1).third_oct.^2)/width(test_data(1).third_oct)).^(1/2);
+    end
+end
+
+clear i j k idx weight_filt f_center f_max f_min fft f_axis fft_var
+%%
+
+figure
+for i = 1:length(tests)
+    subplot(3, 2 ,i)
+    plot((1:length(test_data(i).SPL))*win_len,(test_data(i).SPL))
+    title(stops(i) + " - " + stops(i+1))
+    grid on
+end
+
+figure
+for i = 1:length(tests)
+    subplot(3, 2 ,i)
+    plot(test_data(i).bands.' ,db(abs(test_data(i).third_oct)).')
+    title(stops(i) + " - " + stops(i+1))
+    grid on
+end
+%%
+figure
+for i = 1:length(tests)
+    subplot(3, 2 ,i)
+    %plot(test_data(i).bands,db(abs(test_data(i).third_max)))
+    hold on
+    %plot(test_data(i).bands,db(abs(test_data(i).third_min)))
+    patch([test_data(i).bands(1,:) fliplr(test_data(i).bands(1,:))], [db(abs(test_data(i).third_max)) fliplr(db(abs(test_data(i).third_min)))], 'g')
+    % plot(test_data(i).bands,db(abs(test_data(i).third_avg)))
+    % plot(test_data(i).bands,db(abs(test_data(i).third_rms)))
+    title(stops(i) + " - " + stops(i+1))
+    grid on
+    %xlim([30 test_data(i).bands(end)])
+end
+
+legend("max", "min", "avg", "rms")
+
+clear i
